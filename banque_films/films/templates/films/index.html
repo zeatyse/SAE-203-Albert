@@ -1,0 +1,95 @@
+{% extends 'films/base.html' %}
+{% block title %}CinéBase — Accueil{% endblock %}
+
+{% block content %}
+<div class="p-5 mb-4 bg-dark text-white rounded-3 hero-banner">
+  <div class="container-fluid py-3">
+    <h1 class="display-5 fw-bold"><i class="bi bi-camera-reels-fill text-warning"></i> CinéBase</h1>
+    <p class="col-md-8 fs-4">Votre banque de films : consultez, commentez, gérez.</p>
+    <a class="btn btn-warning btn-lg me-2" href="{% url 'film_list' %}">
+      <i class="bi bi-film"></i> Voir tous les films
+    </a>
+    {% if not user.is_authenticated %}
+    <a class="btn btn-outline-light btn-lg" href="{% url 'register' %}">
+      <i class="bi bi-person-plus"></i> S'inscrire
+    </a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="row g-3 mb-5 text-center">
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <i class="bi bi-film fs-1 text-primary"></i>
+        <h3 class="mt-2 fw-bold">{{ nb_films }}</h3>
+        <p class="text-muted mb-0">Films</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <i class="bi bi-people-fill fs-1 text-success"></i>
+        <h3 class="mt-2 fw-bold">{{ nb_acteurs }}</h3>
+        <p class="text-muted mb-0">Acteurs</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <i class="bi bi-chat-dots-fill fs-1 text-warning"></i>
+        <h3 class="mt-2 fw-bold">{{ nb_commentaires }}</h3>
+        <p class="text-muted mb-0">Commentaires</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <i class="bi bi-person-circle fs-1 text-danger"></i>
+        <h3 class="mt-2 fw-bold">{{ nb_personnes }}</h3>
+        <p class="text-muted mb-0">Utilisateurs</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<h2 class="mb-3 fw-bold">Films récents</h2>
+<div class="row row-cols-2 row-cols-md-4 g-4">
+  {% for film in films_recents %}
+  <div class="col">
+    <div class="card h-100 shadow-sm film-card">
+      {% if film.affiche %}
+      <img src="{{ film.affiche.url }}" class="card-img-top film-poster" alt="{{ film.titre }}">
+      {% else %}
+      <div class="card-img-top film-poster-placeholder d-flex align-items-center justify-content-center bg-secondary text-white">
+        <i class="bi bi-film fs-1"></i>
+      </div>
+      {% endif %}
+      <div class="card-body p-2">
+        <h6 class="card-title mb-1 fw-bold">{{ film.titre }}</h6>
+        <small class="text-muted">
+          {% if film.annee_sortie %}{{ film.annee_sortie }}{% endif %}
+          {% if film.categorie %}&bull; {{ film.categorie }}{% endif %}
+        </small>
+      </div>
+      <div class="card-footer p-2">
+        <a href="{% url 'film_detail' film.pk %}" class="btn btn-sm btn-outline-primary w-100">
+          <i class="bi bi-eye"></i> Voir la fiche
+        </a>
+      </div>
+    </div>
+  </div>
+  {% empty %}
+  <div class="col-12">
+    <p class="text-muted">Aucun film pour l'instant.
+      {% if user.is_authenticated %}
+      <a href="{% url 'film_create' %}">Ajouter le premier film</a>.
+      {% endif %}
+    </p>
+  </div>
+  {% endfor %}
+</div>
+{% endblock %}

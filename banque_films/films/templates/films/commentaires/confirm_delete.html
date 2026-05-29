@@ -1,0 +1,30 @@
+{% extends 'films/base.html' %}
+{% block title %}Supprimer le commentaire — CinéBase{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-5">
+    <div class="card border-danger shadow-sm">
+      <div class="card-header bg-danger text-white">
+        <h4 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Confirmer la suppression</h4>
+      </div>
+      <div class="card-body p-4">
+        <p>Voulez-vous vraiment supprimer ce commentaire ?</p>
+        <div class="card bg-light mb-3">
+          <div class="card-body py-2">
+            <strong>{{ objet.personne.username }}</strong> — <span class="badge bg-warning text-dark">{{ objet.note }}/10</span>
+            <p class="mb-0 mt-1 text-muted">{{ objet.commentaire|truncatechars:120 }}</p>
+          </div>
+        </div>
+        <form method="post">
+          {% csrf_token %}
+          <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> Oui, supprimer</button>
+            <a href="{% url 'film_detail' objet.film.pk %}" class="btn btn-outline-secondary">Annuler</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

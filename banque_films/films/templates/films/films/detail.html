@@ -1,0 +1,203 @@
+{% extends 'films/base.html' %}
+{% block title %}{{ film.titre }} — CinéBase{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+  <!-- Affiche + infos -->
+  <div class="col-md-3 text-center mb-3 mb-md-0">
+    {% if film.affiche %}
+    <img src="{{ film.affiche.url }}" class="img-fluid rounded shadow" alt="{{ film.titre }}" style="max-height:400px;">
+    {% else %}
+    <div class="bg-secondary text-white d-flex align-items-center justify-content-center rounded shadow" style="height:300px;">
+      <i class="bi bi-film" style="font-size:5rem;"></i>
+    </div>
+    {% endif %}
+  </div>
+  <div class="col-md-9">
+    <div class="d-flex justify-content-between align-items-start">
+      <div>
+        <h1 class="fw-bold mb-1">{{ film.titre }}</h1>
+        {% if film.annee_sortie %}
+        <span class="text-muted fs-5">{{ film.annee_sortie }}</span>
+        {% endif %}
+        {% if film.categorie %}
+        <span class="badge bg-primary ms-2">{{ film.categorie }}</span>
+        {% endif %}
+      </div>
+      {% if user.is_authenticated %}
+      <div class="d-flex gap-2">
+        <a href="{% url 'film_update' film.pk %}" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-pencil"></i> Modifier
+        </a>
+        <a href="{% url 'film_delete' film.pk %}" class="btn btn-outline-danger btn-sm">
+          <i class="bi bi-trash"></i>
+        </a>
+      </div>
+      {% endif %}
+    </div>
+    {% if film.realisateur %}
+    <p class="mt-2"><i class="bi bi-camera-video"></i> <strong>Réalisateur :</strong> {{ film.realisateur }}</p>
+    {% endif %}
+
+    <!-- Statistiques notes -->
+    <div class="row g-3 mt-2">
+      <div class="col-auto">
+        <div class="card text-center border-warning px-3 py-2">
+          <div class="fw-bold fs-4 text-warning">
+            {% if moy_globale %}{{ moy_globale }}<small class="fs-6">/10</small>{% else %}—{% endif %}
+          </div>
+          <small class="text-muted">Moyenne globale</small>
+        </div>
+      </div>
+      <div class="col-auto">
+        <div class="card text-center border-info px-3 py-2">
+          <div class="fw-bold fs-4 text-info">
+            {% if moy_amateur %}{{ moy_amateur }}<small class="fs-6">/10</small>{% else %}—{% endif %}
+          </div>
+          <small class="text-muted">Amateurs</small>
+        </div>
+      </div>
+      <div class="col-auto">
+        <div class="card text-center border-success px-3 py-2">
+          <div class="fw-bold fs-4 text-success">
+            {% if moy_pro %}{{ moy_pro }}<small class="fs-6">/10</small>{% else %}—{% endif %}
+          </div>
+          <small class="text-muted">Professionnels</small>
+        </div>
+      </div>
+      <div class="col-auto">
+        <div class="card text-center border-secondary px-3 py-2">
+          <div class="fw-bold fs-4">{{ commentaires.count }}</div>
+          <small class="text-muted">Commentaire{{ commentaires.count|pluralize }}</small>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Casting -->
+<div class="card shadow-sm mb-4">
+  <div class="card-header bg-dark text-white fw-bold">
+    <i class="bi bi-people-fill"></i> Casting
+  </div>
+  <div class="card-body">
+    {% if casting %}
+    <div class="row g-3">
+      {% for c in casting %}
+      <div class="col-6 col-md-2 text-center">
+        {% if c.acteur.photo %}
+        <img src="{{ c.acteur.photo.url }}" class="rounded-circle mb-1 shadow-sm" width="80" height="80" style="object-fit:cover;" alt="{{ c.acteur }}">
+        {% else %}
+        <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mx-auto mb-1" style="width:80px;height:80px;">
+          <i class="bi bi-person-fill fs-3"></i>
+        </div>
+        {% endif %}
+        <a href="{% url 'acteur_detail' c.acteur.pk %}" class="d-block small fw-semibold text-decoration-none">{{ c.acteur }}</a>
+        {% if c.acteur.age %}<small class="text-muted">{{ c.acteur.age }} ans</small>{% endif %}
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="text-muted mb-0">Aucun acteur enregistré pour ce film.</p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Commentaires en vedette -->
+{% if commentaires %}
+<div class="row g-3 mb-4">
+  {% if meilleur %}
+  <div class="col-md-6">
+    <div class="card border-success h-100">
+      <div class="card-header bg-success text-white">
+        <i class="bi bi-hand-thumbs-up-fill"></i> Meilleur commentaire
+      </div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <strong>{{ meilleur.personne.username }}</strong>
+          <span class="badge bg-success fs-6">{{ meilleur.note }}/10</span>
+        </div>
+        <p class="mb-1">{{ meilleur.commentaire }}</p>
+        <small class="text-muted">{{ meilleur.date|date:"d/m/Y H:i" }}</small>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+  {% if pire and pire != meilleur %}
+  <div class="col-md-6">
+    <div class="card border-danger h-100">
+      <div class="card-header bg-danger text-white">
+        <i class="bi bi-hand-thumbs-down-fill"></i> Commentaire le plus bas
+      </div>
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <strong>{{ pire.personne.username }}</strong>
+          <span class="badge bg-danger fs-6">{{ pire.note }}/10</span>
+        </div>
+        <p class="mb-1">{{ pire.commentaire }}</p>
+        <small class="text-muted">{{ pire.date|date:"d/m/Y H:i" }}</small>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endif %}
+
+<!-- Formulaire de commentaire -->
+<div class="card shadow-sm mb-4">
+  <div class="card-header bg-dark text-white fw-bold">
+    <i class="bi bi-chat-dots-fill"></i> Laisser un commentaire
+  </div>
+  <div class="card-body">
+    {% if not user.is_authenticated %}
+    <p class="text-muted"><a href="{% url 'login' %}">Connectez-vous</a> pour commenter ce film.</p>
+    {% elif user_a_commente %}
+    <p class="text-success"><i class="bi bi-check-circle"></i> Vous avez déjà commenté ce film.</p>
+    {% else %}
+    <form method="post" action="{% url 'commentaire_create' film.pk %}">
+      {% csrf_token %}
+      <div class="row g-3">
+        <div class="col-md-3">
+          <label class="form-label fw-semibold">Note</label>
+          {{ form.note }}
+        </div>
+        <div class="col-md-9">
+          <label class="form-label fw-semibold">Commentaire</label>
+          {{ form.commentaire }}
+        </div>
+      </div>
+      <button type="submit" class="btn btn-dark mt-3">
+        <i class="bi bi-send"></i> Publier
+      </button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Tous les commentaires -->
+<h4 class="fw-bold mb-3"><i class="bi bi-chat-square-text"></i> Tous les commentaires ({{ commentaires.count }})</h4>
+{% for c in commentaires %}
+<div class="card shadow-sm mb-2">
+  <div class="card-body py-2">
+    <div class="d-flex justify-content-between align-items-start">
+      <div>
+        <strong>{{ c.personne.username }}</strong>
+        <span class="badge ms-1 {% if c.personne.type == 'professionnel' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %}">
+          {{ c.personne.get_type_display }}
+        </span>
+        <span class="badge bg-warning text-dark ms-1">{{ c.note }}/10</span>
+        <p class="mb-0 mt-1">{{ c.commentaire }}</p>
+        <small class="text-muted">{{ c.date|date:"d/m/Y à H:i" }}</small>
+      </div>
+      {% if user.is_authenticated and user.is_staff or user == c.personne %}
+      <a href="{% url 'commentaire_delete' c.pk %}" class="btn btn-sm btn-outline-danger ms-2">
+        <i class="bi bi-trash"></i>
+      </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% empty %}
+<p class="text-muted">Aucun commentaire pour l'instant. Soyez le premier !</p>
+{% endfor %}
+{% endblock %}
