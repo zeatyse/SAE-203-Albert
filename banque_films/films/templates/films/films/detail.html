@@ -24,14 +24,20 @@
         <span class="badge bg-primary ms-2">{{ film.categorie }}</span>
         {% endif %}
       </div>
-      {% if user.is_authenticated %}
+      
+      <!-- BOUTONS D'ACTION (HAUT) : Pro et Admin -->
+      {% if user.is_superuser or user.type == 'professionnel' %}
       <div class="d-flex gap-2">
         <a href="{% url 'film_update' film.pk %}" class="btn btn-outline-secondary btn-sm">
           <i class="bi bi-pencil"></i> Modifier
         </a>
+        
+        <!-- BOUTON SUPPRIMER : Admin Uniquement -->
+        {% if user.is_superuser %}
         <a href="{% url 'film_delete' film.pk %}" class="btn btn-outline-danger btn-sm">
           <i class="bi bi-trash"></i>
         </a>
+        {% endif %}
       </div>
       {% endif %}
     </div>
@@ -189,7 +195,9 @@
         <p class="mb-0 mt-1">{{ c.commentaire }}</p>
         <small class="text-muted">{{ c.date|date:"d/m/Y à H:i" }}</small>
       </div>
-      {% if user.is_authenticated and user.is_staff or user == c.personne %}
+      
+      <!-- BOUTON SUPPRIMER COMMENTAIRE : Admin Uniquement -->
+      {% if user.is_superuser %}
       <a href="{% url 'commentaire_delete' c.pk %}" class="btn btn-sm btn-outline-danger ms-2">
         <i class="bi bi-trash"></i>
       </a>

@@ -36,27 +36,33 @@
             <i class="bi bi-tags-fill"></i> Catégories
           </a>
         </li>
-        {% if user.is_authenticated %}
+        
+        {% if user.is_superuser or user.type == 'professionnel' %}
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
             <i class="bi bi-gear-fill"></i> Gestion
           </a>
           <ul class="dropdown-menu">
+            {% if user.is_superuser %}
             <li><a class="dropdown-item" href="{% url 'personne_list' %}"><i class="bi bi-person-lines-fill"></i> Utilisateurs</a></li>
             <li><a class="dropdown-item" href="{% url 'commentaire_list' %}"><i class="bi bi-chat-dots-fill"></i> Commentaires</a></li>
             <li><hr class="dropdown-divider"></li>
+            {% endif %}
+            
             <li><a class="dropdown-item" href="{% url 'film_import' %}"><i class="bi bi-upload"></i> Importer des films</a></li>
           </ul>
         </li>
         {% endif %}
       </ul>
+      
       <ul class="navbar-nav">
         {% if user.is_authenticated %}
         <li class="nav-item dropdown">
           <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
             <i class="bi bi-person-circle"></i> {{ user.username }}
-            <span class="badge ms-1 {% if user.type == 'professionnel' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %}">
-              {{ user.get_type_display }}
+            
+            <span class="badge ms-1 {% if user.is_superuser %}bg-danger text-white{% elif user.type == 'professionnel' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %}">
+              {% if user.is_superuser %}Admin{% else %}{{ user.get_type_display }}{% endif %}
             </span>
           </a>
           <ul class="dropdown-menu dropdown-menu-end">

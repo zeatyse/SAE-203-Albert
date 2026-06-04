@@ -4,7 +4,9 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h2 class="fw-bold mb-0"><i class="bi bi-people-fill"></i> Acteurs</h2>
-  {% if user.is_authenticated %}
+  
+  <!-- BOUTON AJOUTER : Uniquement Pro et Admin -->
+  {% if user.is_superuser or user.type == 'professionnel' %}
   <a href="{% url 'acteur_create' %}" class="btn btn-dark">
     <i class="bi bi-plus-lg"></i> Nouvel acteur
   </a>
@@ -39,10 +41,16 @@
         <a href="{% url 'acteur_detail' acteur.pk %}" class="btn btn-sm btn-outline-primary flex-grow-1">
           <i class="bi bi-eye"></i>
         </a>
-        {% if user.is_authenticated %}
+        
+        <!-- BOUTON MODIFIER : Pro et Admin -->
+        {% if user.is_superuser or user.type == 'professionnel' %}
         <a href="{% url 'acteur_update' acteur.pk %}" class="btn btn-sm btn-outline-secondary">
           <i class="bi bi-pencil"></i>
         </a>
+        {% endif %}
+        
+        <!-- BOUTON SUPPRIMER : Admin Uniquement -->
+        {% if user.is_superuser %}
         <a href="{% url 'acteur_delete' acteur.pk %}" class="btn btn-sm btn-outline-danger">
           <i class="bi bi-trash"></i>
         </a>

@@ -4,7 +4,9 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-4">
   <h2 class="fw-bold mb-0"><i class="bi bi-tags-fill"></i> Catégories</h2>
-  {% if user.is_authenticated %}
+  
+  <!-- BOUTON AJOUTER : Uniquement Pro et Admin -->
+  {% if user.is_superuser or user.type == 'professionnel' %}
   <a href="{% url 'categorie_create' %}" class="btn btn-dark">
     <i class="bi bi-plus-lg"></i> Nouvelle catégorie
   </a>
@@ -20,14 +22,20 @@
         <p class="card-text text-muted small">{{ cat.descriptif|default:"Aucun descriptif." }}</p>
         <span class="badge bg-secondary">{{ cat.films.count }} film{{ cat.films.count|pluralize }}</span>
       </div>
-      {% if user.is_authenticated %}
+      
+      <!-- BOUTONS D'ACTION : Pro et Admin -->
+      {% if user.is_superuser or user.type == 'professionnel' %}
       <div class="card-footer d-flex gap-2">
         <a href="{% url 'categorie_update' cat.pk %}" class="btn btn-sm btn-outline-secondary">
           <i class="bi bi-pencil"></i> Modifier
         </a>
+        
+        <!-- BOUTON SUPPRIMER : Admin Uniquement -->
+        {% if user.is_superuser %}
         <a href="{% url 'categorie_delete' cat.pk %}" class="btn btn-sm btn-outline-danger">
           <i class="bi bi-trash"></i> Supprimer
         </a>
+        {% endif %}
       </div>
       {% endif %}
     </div>

@@ -85,7 +85,7 @@
   {% empty %}
   <div class="col-12">
     <p class="text-muted">Aucun film pour l'instant.
-      {% if user.is_authenticated %}
+      {% if user.is_superuser or user.type == 'professionnel' %}
       <a href="{% url 'film_create' %}">Ajouter le premier film</a>.
       {% endif %}
     </p>

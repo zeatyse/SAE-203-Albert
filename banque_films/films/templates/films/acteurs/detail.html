@@ -18,14 +18,20 @@
         <h1 class="fw-bold">{{ acteur }}</h1>
         {% if acteur.age %}<p class="text-muted fs-5">{{ acteur.age }} ans</p>{% endif %}
       </div>
-      {% if user.is_authenticated %}
+      
+      <!-- BOUTONS D'ACTION : Pro et Admin -->
+      {% if user.is_superuser or user.type == 'professionnel' %}
       <div class="d-flex gap-2">
         <a href="{% url 'acteur_update' acteur.pk %}" class="btn btn-outline-secondary btn-sm">
           <i class="bi bi-pencil"></i> Modifier
         </a>
+        
+        <!-- BOUTON SUPPRIMER : Admin Uniquement -->
+        {% if user.is_superuser %}
         <a href="{% url 'acteur_delete' acteur.pk %}" class="btn btn-outline-danger btn-sm">
           <i class="bi bi-trash"></i>
         </a>
+        {% endif %}
       </div>
       {% endif %}
     </div>

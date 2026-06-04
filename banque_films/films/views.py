@@ -1,5 +1,6 @@
 import csv
 import io
+from functools import wraps
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
@@ -11,6 +12,41 @@ from .forms import (
     CategorieForm, FilmForm, ActeurForm, CommentaireForm,
     InscriptionForm, ConnexionForm, PersonneUpdateForm, ImportFilmForm,
 )
+
+
+# ─── DÉCORATEURS DE SÉCURITÉ PERSONNALISÉS ────────────────────────────────────
+
+def pro_required(view_func):
+    """Autorise uniquement les Professionnels et les Super Admins"""
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.warning(request, "Veuillez vous connecter pour accéder à cette page.")
+            return redirect('login_view')  # Assure-toi que le nom de l'URL est bien 'login_view' ou 'login' dans tes urls.py
+        
+        # On vérifie si l'utilisateur est pro ou super admin
+        if request.user.is_superuser or getattr(request.user, 'type', '') == 'professionnel':
+            return view_func(request, *args, **kwargs)
+            
+        messages.error(request, "Accès refusé : Cette action est réservée aux professionnels.")
+        return redirect('index')
+    return _wrapped_view
+
+
+def admin_required(view_func):
+    """Autorise UNIQUEMENT les Super Admins"""
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            messages.warning(request, "Veuillez vous connecter en tant qu'administrateur.")
+            return redirect('login_view')
+            
+        if request.user.is_superuser:
+            return view_func(request, *args, **kwargs)
+            
+        messages.error(request, "Accès refusé : Réservé aux administrateurs du site.")
+        return redirect('index')
+    return _wrapped_view
 
 
 # ─── Accueil ──────────────────────────────────────────────────────────────────
@@ -67,7 +103,7 @@ def categorie_list(request):
     return render(request, 'films/categories/list.html', {'categories': categories})
 
 
-@login_required
+@pro_required
 def categorie_create(request):
     form = CategorieForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
@@ -77,7 +113,7 @@ def categorie_create(request):
     return render(request, 'films/categories/form.html', {'form': form, 'title': 'Nouvelle catégorie'})
 
 
-@login_required
+@pro_required
 def categorie_update(request, pk):
     categorie = get_object_or_404(Categorie, pk=pk)
     form = CategorieForm(request.POST or None, instance=categorie)
@@ -88,7 +124,7 @@ def categorie_update(request, pk):
     return render(request, 'films/categories/form.html', {'form': form, 'title': 'Modifier la catégorie', 'objet': categorie})
 
 
-@login_required
+@admin_required
 def categorie_delete(request, pk):
     categorie = get_object_or_404(Categorie, pk=pk)
     if request.method == 'POST':
@@ -141,7 +177,7 @@ def film_detail(request, pk):
     })
 
 
-@login_required
+@pro_required
 def film_create(request):
     form = FilmForm(request.POST or None, request.FILES or None)
     acteurs = Acteur.objects.all()
@@ -159,7 +195,7 @@ def film_create(request):
     })
 
 
-@login_required
+@pro_required
 def film_update(request, pk):
     film = get_object_or_404(Film, pk=pk)
     form = FilmForm(request.POST or None, request.FILES or None, instance=film)
@@ -181,7 +217,7 @@ def film_update(request, pk):
     })
 
 
-@login_required
+@admin_required
 def film_delete(request, pk):
     film = get_object_or_404(Film, pk=pk)
     if request.method == 'POST':
@@ -191,7 +227,7 @@ def film_delete(request, pk):
     return render(request, 'films/films/confirm_delete.html', {'objet': film, 'type': 'le film'})
 
 
-@login_required
+@pro_required
 def film_import(request):
     form = ImportFilmForm(request.POST or None, request.FILES or None)
     succes, erreurs = 0, []
@@ -260,13 +296,13 @@ def commentaire_create(request, pk):
     return redirect('film_detail', pk=pk)
 
 
-@login_required
+@admin_required
 def commentaire_list(request):
     commentaires = Commentaire.objects.select_related('film', 'personne').all()
     return render(request, 'films/commentaires/list.html', {'commentaires': commentaires})
 
 
-@login_required
+@admin_required
 def commentaire_delete(request, pk):
     commentaire = get_object_or_404(Commentaire, pk=pk)
     film_pk = commentaire.film.pk
@@ -295,7 +331,7 @@ def acteur_detail(request, pk):
     return render(request, 'films/acteurs/detail.html', {'acteur': acteur, 'films': films})
 
 
-@login_required
+@pro_required
 def acteur_create(request):
     form = ActeurForm(request.POST or None, request.FILES or None)
     if request.method == 'POST' and form.is_valid():
@@ -305,7 +341,7 @@ def acteur_create(request):
     return render(request, 'films/acteurs/form.html', {'form': form, 'title': 'Nouvel acteur'})
 
 
-@login_required
+@pro_required
 def acteur_update(request, pk):
     acteur = get_object_or_404(Acteur, pk=pk)
     form = ActeurForm(request.POST or None, request.FILES or None, instance=acteur)
@@ -316,7 +352,7 @@ def acteur_update(request, pk):
     return render(request, 'films/acteurs/form.html', {'form': form, 'title': "Modifier l'acteur", 'objet': acteur})
 
 
-@login_required
+@admin_required
 def acteur_delete(request, pk):
     acteur = get_object_or_404(Acteur, pk=pk)
     if request.method == 'POST':
@@ -328,13 +364,13 @@ def acteur_delete(request, pk):
 
 # ─── Personnes ────────────────────────────────────────────────────────────────
 
-@login_required
+@admin_required
 def personne_list(request):
     personnes = Personne.objects.all().order_by('username')
     return render(request, 'films/personnes/list.html', {'personnes': personnes})
 
 
-@login_required
+@admin_required
 def personne_update(request, pk):
     personne = get_object_or_404(Personne, pk=pk)
     form = PersonneUpdateForm(request.POST or None, instance=personne)
@@ -345,7 +381,7 @@ def personne_update(request, pk):
     return render(request, 'films/personnes/form.html', {'form': form, 'personne': personne})
 
 
-@login_required
+@admin_required
 def personne_delete(request, pk):
     personne = get_object_or_404(Personne, pk=pk)
     if personne == request.user:
