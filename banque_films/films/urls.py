@@ -15,7 +15,7 @@ urlpatterns = [
     path('categories/new/', views.categorie_create, name='categorie_create'),
     path('categories/<int:pk>/edit/', views.categorie_update, name='categorie_update'),
     path('categories/<int:pk>/delete/', views.categorie_delete, name='categorie_delete'),
-
+    path('categories/<int:pk>/', views.categorie_detail, name='categorie_detail'),
     # Films
     path('films/', views.film_list, name='film_list'),
     path('films/import/', views.film_import, name='film_import'),

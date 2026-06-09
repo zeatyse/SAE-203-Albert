@@ -133,7 +133,13 @@ def categorie_delete(request, pk):
         return redirect('categorie_list')
     return render(request, 'films/categories/confirm_delete.html', {'objet': categorie, 'type': 'la catégorie'})
 
-
+def categorie_detail(request, pk):
+    categorie = get_object_or_404(Categorie, pk=pk)
+    films = categorie.films.all()  # Récupère tous les films de cette catégorie
+    return render(request, 'films/categories/detail.html', {
+        'categorie': categorie, 
+        'films': films
+    })
 # ─── Films ────────────────────────────────────────────────────────────────────
 
 def film_list(request):

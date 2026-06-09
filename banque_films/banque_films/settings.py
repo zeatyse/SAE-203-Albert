@@ -54,7 +54,7 @@ DATABASES = {
         'NAME': 'cinebase_db',
         'USER': 'cinebase_user',
         'PASSWORD': 'motdepasseSAE',
-        'HOST': '10.128.207.80',
+        'HOST': '10.128.233.128',
         'PORT': '3306',
     }
 }

@@ -19,25 +19,32 @@
     <div class="card h-100 shadow-sm">
       <div class="card-body">
         <h5 class="card-title fw-bold">{{ cat.nom }}</h5>
-        <p class="card-text text-muted small">{{ cat.descriptif|default:"Aucun descriptif." }}</p>
+        <p class="card-text text-muted small">{{ cat.descriptif|truncatechars:80|default:"Aucun descriptif." }}</p>
         <span class="badge bg-secondary">{{ cat.films.count }} film{{ cat.films.count|pluralize }}</span>
       </div>
       
-      <!-- BOUTONS D'ACTION : Pro et Admin -->
-      {% if user.is_superuser or user.type == 'professionnel' %}
-      <div class="card-footer d-flex gap-2">
-        <a href="{% url 'categorie_update' cat.pk %}" class="btn btn-sm btn-outline-secondary">
-          <i class="bi bi-pencil"></i> Modifier
+      <!-- FOOTER AVEC BOUTONS D'ACTION -->
+      <div class="card-footer d-flex gap-1">
+        <!-- BOUTON VOIR : Pour tout le monde -->
+        <a href="{% url 'categorie_detail' cat.pk %}" class="btn btn-sm btn-outline-primary flex-grow-1">
+          <i class="bi bi-eye"></i> Voir les films
         </a>
+        
+        <!-- BOUTON MODIFIER : Pro et Admin -->
+        {% if user.is_superuser or user.type == 'professionnel' %}
+        <a href="{% url 'categorie_update' cat.pk %}" class="btn btn-sm btn-outline-secondary">
+          <i class="bi bi-pencil"></i>
+        </a>
+        {% endif %}
         
         <!-- BOUTON SUPPRIMER : Admin Uniquement -->
         {% if user.is_superuser %}
         <a href="{% url 'categorie_delete' cat.pk %}" class="btn btn-sm btn-outline-danger">
-          <i class="bi bi-trash"></i> Supprimer
+          <i class="bi bi-trash"></i>
         </a>
         {% endif %}
       </div>
-      {% endif %}
+      
     </div>
   </div>
   {% empty %}
