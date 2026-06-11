@@ -1,0 +1,74 @@
+/* ── CinéBase — Styles personnalisés ─────────────────────────── */
+
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* Hero banner accueil */
+.hero-banner {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: white;
+}
+
+/* Cartes films */
+.film-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+    border: none;
+}
+
+.film-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15) !important;
+}
+
+.film-poster {
+    height: 220px;
+    object-fit: cover;
+}
+
+.film-poster-placeholder {
+    height: 220px;
+}
+
+/* Navbar active */
+.navbar-nav .nav-link.active {
+    color: #ffc107 !important;
+    font-weight: 600;
+}
+
+/* Notes / badges */
+.badge.bg-warning {
+    font-size: 0.85rem;
+}
+
+/* Tables */
+.table th {
+    font-weight: 600;
+    font-size: 0.875rem;
+    letter-spacing: 0.03em;
+}
+
+/* Cards hover */
+.card {
+    border-radius: 10px;
+}
+
+/* Footer */
+footer {
+    border-top: 1px solid #333;
+}
+
+/* Stat cards film detail */
+.card.border-warning,
+.card.border-info,
+.card.border-success,
+.card.border-secondary {
+    border-width: 2px !important;
+}
+
+/* Scrollable cast selection */
+.acteurs-scroll {
+    max-height: 300px;
+    overflow-y: auto;
+}

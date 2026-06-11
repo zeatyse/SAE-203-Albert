@@ -1,0 +1,111 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}CinéBase{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="{% static 'films/css/style.css' %}">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+  <div class="container">
+    <a class="navbar-brand fw-bold fs-4" href="{% url 'index' %}">
+      <i class="bi bi-camera-reels-fill text-warning"></i> CinéBase
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="nav">
+      <ul class="navbar-nav me-auto">
+        <li class="nav-item">
+          <a class="nav-link {% if request.resolver_match.url_name == 'film_list' %}active{% endif %}" href="{% url 'film_list' %}">
+            <i class="bi bi-film"></i> Films
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if 'acteur' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'acteur_list' %}">
+            <i class="bi bi-people-fill"></i> Acteurs
+          </a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link {% if 'categorie' in request.resolver_match.url_name %}active{% endif %}" href="{% url 'categorie_list' %}">
+            <i class="bi bi-tags-fill"></i> Catégories
+          </a>
+        </li>
+        
+        {% if user.is_superuser or user.type == 'professionnel' %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+            <i class="bi bi-gear-fill"></i> Gestion
+          </a>
+          <ul class="dropdown-menu">
+            {% if user.is_superuser %}
+            <li><a class="dropdown-item" href="{% url 'personne_list' %}"><i class="bi bi-person-lines-fill"></i> Utilisateurs</a></li>
+            <li><a class="dropdown-item" href="{% url 'commentaire_list' %}"><i class="bi bi-chat-dots-fill"></i> Commentaires</a></li>
+            <li><hr class="dropdown-divider"></li>
+            {% endif %}
+            
+            <li><a class="dropdown-item" href="{% url 'film_import' %}"><i class="bi bi-upload"></i> Importer des films</a></li>
+          </ul>
+        </li>
+        {% endif %}
+      </ul>
+      
+      <ul class="navbar-nav">
+        {% if user.is_authenticated %}
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+            <i class="bi bi-person-circle"></i> {{ user.username }}
+            
+            <span class="badge ms-1 {% if user.is_superuser %}bg-danger text-white{% elif user.type == 'professionnel' %}bg-warning text-dark{% else %}bg-info text-dark{% endif %}">
+              {% if user.is_superuser %}Admin{% else %}{{ user.get_type_display }}{% endif %}
+            </span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li>
+              <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="dropdown-item text-danger">
+                  <i class="bi bi-box-arrow-right"></i> Déconnexion
+                </button>
+              </form>
+            </li>
+          </ul>
+        </li>
+        {% else %}
+        <li class="nav-item">
+          <a class="nav-link" href="{% url 'login' %}"><i class="bi bi-box-arrow-in-right"></i> Connexion</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link btn btn-warning btn-sm text-dark ms-2 px-3" href="{% url 'register' %}">
+            <i class="bi bi-person-plus"></i> Inscription
+          </a>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<main class="container my-4">
+  {% for msg in messages %}
+  <div class="alert alert-{{ msg.tags }} alert-dismissible fade show" role="alert">
+    {{ msg }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+  {% endfor %}
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="bg-dark text-secondary text-center py-3 mt-5">
+  <small><i class="bi bi-camera-reels"></i> CinéBase &mdash; SAÉ IUT RT &mdash; 2024</small>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

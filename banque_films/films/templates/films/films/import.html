@@ -1,0 +1,86 @@
+{% extends 'films/base.html' %}
+{% block title %}Importer des films — CinéBase{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card shadow-sm">
+      <div class="card-header bg-dark text-white">
+        <h4 class="mb-0"><i class="bi bi-upload"></i> Importer des films (CSV)</h4>
+      </div>
+      <div class="card-body p-4">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Fichier CSV</label>
+            {{ form.fichier }}
+            {% if form.fichier.errors %}
+            <div class="text-danger small">{{ form.fichier.errors|join:", " }}</div>
+            {% endif %}
+          </div>
+          <button type="submit" class="btn btn-dark">
+            <i class="bi bi-cloud-upload"></i> Importer
+          </button>
+        </form>
+
+        {% if erreurs %}
+        <hr>
+        <h6 class="text-danger"><i class="bi bi-exclamation-triangle"></i> Erreurs :</h6>
+        <ul class="small text-danger">
+          {% for e in erreurs %}<li>{{ e }}</li>{% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-6">
+    <div class="card border-info shadow-sm">
+      <div class="card-header bg-info text-dark fw-bold">
+        <i class="bi bi-info-circle"></i> Structure du fichier CSV
+      </div>
+      <div class="card-body">
+        <p>Le fichier doit être encodé en <strong>UTF-8</strong> avec <strong>;</strong> comme séparateur.</p>
+        <h6 class="fw-bold mt-3">Colonnes attendues :</h6>
+        <table class="table table-sm table-bordered small">
+          <thead class="table-dark">
+            <tr>
+              <th>Colonne</th>
+              <th>Obligatoire</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td><code>titre</code></td><td><i class="bi bi-check text-success"></i></td><td>Titre du film</td></tr>
+            <tr><td><code>annee_sortie</code></td><td>Non</td><td>Année (ex: 2010)</td></tr>
+            <tr><td><code>realisateur</code></td><td>Non</td><td>Nom du réalisateur</td></tr>
+            <tr><td><code>categorie</code></td><td>Non</td><td>Nom de la catégorie (créée si inexistante)</td></tr>
+            <tr><td><code>acteurs</code></td><td>Non</td><td>Liste d'acteurs séparés par <code>|</code> au format <code>Prénom Nom</code></td></tr>
+          </tbody>
+        </table>
+        <h6 class="fw-bold mt-3">Exemple :</h6>
+        <pre class="bg-light p-2 rounded small"><code>titre;annee_sortie;realisateur;categorie;acteurs
+Inception;2010;Christopher Nolan;Science-Fiction;Leonardo DiCaprio|Joseph Gordon-Levitt
+Le Parrain;1972;Francis Ford Coppola;Drame;Marlon Brando|Al Pacino</code></pre>
+        <a href="#" class="btn btn-sm btn-outline-info" id="dl-exemple" onclick="downloadExemple()">
+          <i class="bi bi-download"></i> Télécharger un exemple
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function downloadExemple() {
+  const csv = "titre;annee_sortie;realisateur;categorie;acteurs\nInception;2010;Christopher Nolan;Science-Fiction;Leonardo DiCaprio|Joseph Gordon-Levitt\nLe Parrain;1972;Francis Ford Coppola;Drame;Marlon Brando|Al Pacino\n";
+  const blob = new Blob(["﻿" + csv], {type: "text/csv;charset=utf-8;"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "exemple_films.csv";
+  a.click();
+}
+</script>
+{% endblock %}
