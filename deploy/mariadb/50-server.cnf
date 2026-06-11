@@ -1,0 +1,10 @@
+# MariaDB — VM2 (base de données)
+# Fichier sur la VM : /etc/mysql/mariadb.conf.d/50-server.cnf
+#
+# Modification clé apportée : ouvrir l'écoute réseau pour que la VM1 (Django)
+# puisse se connecter à la base (par défaut MariaDB n'écoute qu'en local).
+# Après modification : systemctl restart mariadb
+
+[mysqld]
+# Défaut Debian/Ubuntu : bind-address = 127.0.0.1
+bind-address = 0.0.0.0
