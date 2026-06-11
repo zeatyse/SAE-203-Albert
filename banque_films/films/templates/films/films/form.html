@@ -1,0 +1,60 @@
+{% extends 'films/base.html' %}
+{% block title %}{{ title }} — CinéBase{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-8">
+    <div class="card shadow-sm">
+      <div class="card-header bg-dark text-white">
+        <h4 class="mb-0"><i class="bi bi-film"></i> {{ title }}</h4>
+      </div>
+      <div class="card-body p-4">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="row g-3">
+            {% for field in form %}
+            <div class="col-md-{% if field.name == 'titre' or field.name == 'realisateur' %}12{% else %}6{% endif %}">
+              <label class="form-label fw-semibold">{{ field.label }}</label>
+              {{ field }}
+              {% if field.errors %}<div class="text-danger small mt-1">{{ field.errors|join:", " }}</div>{% endif %}
+            </div>
+            {% endfor %}
+          </div>
+
+          <!-- Sélection des acteurs -->
+          <hr>
+          <h5 class="fw-bold"><i class="bi bi-people-fill"></i> Casting</h5>
+          <p class="text-muted small">Sélectionnez les acteurs qui jouent dans ce film :</p>
+          <div class="row g-2" style="max-height:300px; overflow-y:auto; border:1px solid #dee2e6; border-radius:8px; padding:10px;">
+            {% for acteur in acteurs %}
+            <div class="col-md-4">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="acteurs" value="{{ acteur.pk }}"
+                       id="acteur_{{ acteur.pk }}"
+                       {% if acteur.pk in casting_ids %}checked{% endif %}>
+                <label class="form-check-label" for="acteur_{{ acteur.pk }}">
+                  {{ acteur }}
+                </label>
+              </div>
+            </div>
+            {% empty %}
+            <p class="text-muted small">Aucun acteur enregistré. <a href="{% url 'acteur_create' %}">En ajouter un</a>.</p>
+            {% endfor %}
+          </div>
+
+          <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-dark">
+              <i class="bi bi-check-lg"></i> Enregistrer
+            </button>
+            {% if objet %}
+            <a href="{% url 'film_detail' objet.pk %}" class="btn btn-outline-secondary">Annuler</a>
+            {% else %}
+            <a href="{% url 'film_list' %}" class="btn btn-outline-secondary">Annuler</a>
+            {% endif %}
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
